@@ -1,9 +1,6 @@
 #include <iostream>
 #include <cstdlib>
 #include <new>
-#include <iostream>
-#include <cstdlib>
-#include <new>
 #include <ctime>
 #include <stack>
 #include <vector>
@@ -97,9 +94,9 @@ public:
         }
         fill(visited.begin(), visited.end(), false);
         cout << "Strongly Connected Components:" << endl;
-        for(int i = size - 1; i >= 0; --i) {
+        for (int i = size - 1; i >= 0; --i) {
             int v = finishTime[i];
-            if(!visited[v]) {
+            if (!visited[v]) {
                 cout << "Component: ";
                 DFSSecondPass(v);
                 cout << endl;
