@@ -16,6 +16,7 @@ public:
     vector<vector<int>> transposedMatrix;
     vector<bool> visited;
     vector<int> finishTime;
+    vector<vector<int>> components;
     int time;
 
     Matrix(int size) : size(size), matrix(size, vector<int>(size)), transposedMatrix(size, vector<int>(size)), 
@@ -39,24 +40,22 @@ public:
     void InputMatrix() {
         int value;
         cout << "Введите матрицу смежности (строки через пробел, 0 или 1):" << endl;
-        for (int i = 0; i < size; i++) 
-        {
-            cout << "Строка " << i + 1 << ": ";
-            for (int j = 0; j < size; j++) 
-            {
-                do {
-                    cin >> value;
-                    if (value != 0 && value != 1) 
-                    {
-                        cout << "Ошибка: можно вводить только 0 или 1. Повторите ввод для элемента [" << i << "][" << j << "]: ";
-                    }
-                } while (value != 0 && value != 1); // Проверка, что введено 0 или 1
-
-                matrix[i][j] = value;
-                transposedMatrix[j][i] = value;
+        for (int i = 0; i < size; i++) {
+            cout << "Строка " << i + 1 << " (только "<< size <<" элементов будут записаны): ";
+            int count = 0;
+            while (count < size) {
+            int value;
+            cin >> value;
+            if (value == 0 || value == 1) {
+                matrix[i][count] = value; // Записываем элемент
+                count++;
+            } else {
+                cout << "Ошибка: можно вводить только 0 или 1. Повторите ввод: ";
             }
         }
-    }    
+        cin.ignore(1000, '\n');
+        }
+    }
     void PrintMatrix(const vector<vector<int>>& mat) {
         for(int i=0; i<size; i++) {
             for(int j=0; j<size; j++) {
@@ -76,16 +75,15 @@ public:
         finishTime[time++] = v;
     }
 
-    void DFSSecondPass(int v) {
+    void DFSSecondPass(int v, vector<int>& component) {
         visited[v] = true;
-        cout << v + 1 << " ";
-        for (int i = 0; i < size; ++i) {
-            if (transposedMatrix[v][i] && !visited[i]) {
-                DFSSecondPass(i);
+        component.push_back(v);
+        for (int i=0;i<size;i++) {
+            if (!visited[i] && transposedMatrix[v][i]) {
+                DFSSecondPass(i, component);
             }
         }
     }
-
     void FindStrongComponents() {
         for(int i = 0; i < size; ++i) {
             if(!visited[i]) {
@@ -93,14 +91,22 @@ public:
             }
         }
         fill(visited.begin(), visited.end(), false);
-        cout << "Strongly Connected Components:" << endl;
+        
         for (int i = size - 1; i >= 0; --i) {
             int v = finishTime[i];
             if (!visited[v]) {
-                cout << "Component: ";
-                DFSSecondPass(v);
-                cout << endl;
+                vector<int> component;
+                DFSSecondPass(v, component);
+                components.push_back(component);
             }
+        }
+        cout << "Strongly Connected Components:" << endl;
+        for (const auto& component : components) {
+            cout << "Component: ";
+            for (int vertex : component) {
+                cout << vertex+1 << " ";
+            }
+            cout << endl;
         }
     }
 
@@ -200,9 +206,9 @@ int main() {
         }while(random<0 || random>100);
         Matrix graph(size);
         graph.GenerateMatrix(random);
-        cout << "Original Matrix:" << endl;
+        cout << "Начальная матрица:" << endl;
         graph.PrintMatrix(graph.matrix);
-        cout << "\nTransposed Matrix:" << endl;
+        cout << "\nТранспонированная матрица:" << endl;
         graph.PrintMatrix(graph.transposedMatrix);
 
         graph.FindStrongComponents();
