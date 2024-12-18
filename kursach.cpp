@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <clocale>
 #include <limits>
+#include <sstream>
 using namespace std;
 
 class Matrix {
@@ -38,24 +39,36 @@ public:
         }
     }
     void InputMatrix() {
-        int value;
         cout << "Введите матрицу смежности (строки через пробел, 0 или 1):" << endl;
+
         for (int i = 0; i < size; i++) {
-            cout << "Строка " << i + 1 << " (только "<< size <<" элементов будут записаны): ";
+            cout << "Строка " << i + 1 << " (только " << size << " элементов будут записаны): ";
             int count = 0;
+
             while (count < size) {
-            int value;
-            cin >> value;
-            if (value == 0 || value == 1) {
-                matrix[i][count] = value; // Записываем элемент
-                count++;
-            } else {
-                cout << "Ошибка: можно вводить только 0 или 1. Повторите ввод: ";
+                bool invalid = false;
+                int value;
+                for (int j = count; j < size; j++) {
+                    cin >> value;
+                    if (value == 0 || value == 1) {
+                        matrix[i][j] = value;
+                        transposedMatrix[j][i] = value;
+                        count++;
+                    } else {
+                        invalid = true;
+                        cin.clear();
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        break;
+                       }
+                }
+                if (invalid) {
+                    cout << "Ошибка: можно вводить только 0 или 1. Повторите ввод строки " << i + 1 << ": ";
+                    count = 0;
+                }
             }
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Чистим буфер после строки
         }
-        cin.ignore(1000, '\n');
-        }
-    }
+    }    
     void PrintMatrix(const vector<vector<int>>& mat) {
         for(int i=0; i<size; i++) {
             for(int j=0; j<size; j++) {
